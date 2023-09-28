@@ -1,0 +1,83 @@
+# Technical Document: Implementing Topic-Filtered Article Listing
+
+## Introduction
+This document describes the process of implementing a feature that allows users to filter articles by topics in a news application. This feature enhances user experience by allowing more focused content discovery.
+
+## Feature Description
+Users can select a topic from a dropdown menu. Once a topic is selected, the list of displayed articles will be filtered to include only those that pertain to the chosen topic.
+
+---
+## Backend Implementation
+
+### Controller Changes
+In the existing `getArticles` controller, we delegated the database querying logic to a `selectArticles` function.
+
+```javascript
+exports.getArticles = async (req, res) => {
+  const articles = await selectArticles(req.query);
+  res.send({ articles });
+};
+```
+
+### Updating `selectArticles` Function
+The `selectArticles` function was modified to accept an optional `topic` query parameter. If this parameter is present, the function appends a `WHERE` clause to the SQL query.
+
+```javascript
+if (topic) {
+  queryStr += `WHERE articles.topic ILIKE $1`;
+  dbQueryParams.push(topic);
+}
+```
+
+---
+
+## Frontend Implementation
+
+### `fetchArticles` Function
+The `fetchArticles` function was modified to accept an optional `topic` parameter. If present, this parameter is appended to the API endpoint URL.
+
+```javascript
+export const fetchArticles = async (topic = null) => {
+  let url = '/articles';
+  if (topic) {
+    url += `?topic=${topic}`;
+  }
+  // ... existing code
+};
+```
+
+### React Components
+The `Header.jsx` component handles the topic selection and updates a `topic` state in the `App.jsx` component. This state is then passed as a prop to the `Articles.jsx` component, which calls `fetchArticles` function with the `topic` prop.
+
+```jsx
+// Inside Articles.jsx
+useEffect(() => {
+  const fetchData = async () => {
+    // ... existing code
+    const data = await fetchArticles(topic);  
+    // ... existing code
+  };
+  fetchData();
+}, [topic]);
+```
+
+---
+
+## Problems Encountered & Solutions
+
+### 1. Topic Being Sent as `[object Object]`
+**Problem**: Initially, the topic was being sent as an object, causing a 404 error.
+
+**Solution**: We ensured that only the string value representing the topic was passed to the `fetchArticles` function, solving the issue.
+
+### 2. UI Not Updating
+**Problem**: On selecting a topic, the UI didn't refresh to display filtered articles.
+
+**Solution**: We added `topic` as a dependency to the `useEffect` hook in `Articles.jsx`, ensuring that the component re-renders whenever the topic changes.
+
+---
+
+## Conclusion
+The feature for filtering articles by topics was successfully implemented. Users can now easily sort through articles based on their interests, greatly improving the usability of the application.
+
+Would you like to add anything else to this document?

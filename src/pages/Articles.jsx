@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Text, VStack, Spinner } from '@chakra-ui/react'; // Import Spinner for better loading state
+import { Box, Text, VStack, Spinner } from '@chakra-ui/react';
+import { Link } from 'react-router-dom';  // Import Link for routing
 import { fetchArticles } from '../api';
 
-const Articles = ({ topic }) => {  // Receive topic as a prop
-  // Initialize state within the component
+const Articles = ({ topic }) => {
   const [articles, setArticles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,7 +12,7 @@ const Articles = ({ topic }) => {  // Receive topic as a prop
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const data = await fetchArticles({ topic });  // Use topic for filtering
+        const data = await fetchArticles({ topic });
         setArticles(data.articles);
       } catch (err) {
         setError(err);
@@ -21,24 +21,28 @@ const Articles = ({ topic }) => {  // Receive topic as a prop
     };
 
     fetchData();
-  }, [topic]);  // Re-fetch when the topic changes
+  }, [topic]);
 
-  // Improved UI
   return (
     <VStack spacing={4} align="stretch">
       {isLoading ? (
-        <Spinner size="xl" />  // Use a spinner for loading state
+        <Spinner size="xl" />
       ) : error ? (
         <Box>
           <Text>Error: {error.message}</Text>
-          {/* You could add a "Retry" button here */}
+          {/* Add a "Retry" button here if needed */}
         </Box>
       ) : (
         articles.map((article) => (
           <Box key={article.article_id} p={5} shadow="md" borderWidth={1}>
-            <Text fontSize="xl" fontWeight="bold">{article.title}</Text>
-            <Text mt={4}>{article.body.substring(0, 100)}...</Text>  // Show a snippet of the body
-            {/* Add more article details like author, votes, etc. */}
+            <Link to={`/article/${article.article_id}`}>
+              <Text fontSize="xl" fontWeight="bold">{article.title}</Text>
+            </Link>
+            <Text mt={2}>Author: {article.author}</Text>
+            <Text mt={2}>Published on: {new Date(article.created_at).toLocaleDateString()}</Text>
+            <Text mt={4}>
+              {article.body.length > 100 ? `${article.body.substring(0, 100)}...` : article.body}
+            </Text>
           </Box>
         ))
       )}
