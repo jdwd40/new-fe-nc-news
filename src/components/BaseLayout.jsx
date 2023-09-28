@@ -2,11 +2,11 @@ import { Box } from '@chakra-ui/react';
 import Header from './Header';
 import Footer from './Footer';
 
-const BaseLayout = ({ children }) => {
+const BaseLayout = ({ children, setTopic }) => {
   return (
     <>
     <Box>
-      <Header user=""/>
+      <Header setTopic={setTopic}/>
       <Box as="main">
         {children}
       </Box>
