@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import BaseLayout from './components/BaseLayout';
 import Articles from './pages/Articles';
+import ArticlePage from './pages/ArticlePage';
 // Import your pages/components as needed
 
 function App() {
@@ -12,7 +13,7 @@ function App() {
       <BaseLayout setTopic={setTopic}>
         <Routes>
           <Route path="/" element={<Articles topic={topic} />} />
-          <Route path="/article/:id" element="" />
+          <Route path="/article/:id" element={<ArticlePage />} />
           {/* Add more routes as needed */}
         </Routes>
       </BaseLayout>

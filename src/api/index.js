@@ -14,9 +14,7 @@ export const fetchTopics = async () => {
   
   // Fetch articles, optionally filtered by a topic
 export const fetchArticles = async (topic = null) => {
-  console.log("Topic before API call: ", topic);
   const topicString = topic.topic;
-  console.log("Topic after to string: ", topicString);
   try {
     let url = '/articles';
     if (topicString) {
@@ -39,3 +37,13 @@ export const fetchArticles = async (topic = null) => {
     }
   };
   
+  // Fetch comments for an article
+  // on route GET /api/articles/:article_id/comments
+export const fetchCommentsByArticleId = async (id) => {
+  try {
+    const response = await axios.get(`/articles/${id}/comments`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
