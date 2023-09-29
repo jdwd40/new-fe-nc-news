@@ -1,38 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Text, Button, VStack, Spinner, Divider } from '@chakra-ui/react';
-import { fetchArticleById, fetchCommentsByArticleId } from '../api';  // Import your API fetching functions
+import { Box, Text, Button, VStack, Spinner, Divider, Input } from '@chakra-ui/react';
+import { fetchArticleById, fetchCommentsByArticleId, postCommentByArticleId } from '../api';
 
 const ArticlePage = () => {
   const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [comments, setComments] = useState([]);
+  const [commentBody, setCommentBody] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const articleData = await fetchArticleById(id);
-        const commentsData = await fetchCommentsByArticleId(id);
-        setArticle(articleData.article);
-        setComments(commentsData.comments);
-      } catch (err) {
-        setError(err);
-      }
-      setIsLoading(false);
-    };
-
     fetchData();
   }, [id]);
 
-  const handleLike = () => {
-    // Implement your like functionality here
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const articleData = await fetchArticleById(id);
+      const commentsData = await fetchCommentsByArticleId(id);
+      setArticle(articleData.article);
+      setComments(commentsData.comments);
+    } catch (err) {
+      setError(err);
+    }
+    setIsLoading(false);
   };
 
-  const handleComment = () => {
-    // Implement your comment functionality here
+  const handleCommentSubmit = async () => {
+    try {
+      const newComment = await postCommentByArticleId(id, { body: commentBody, username: 'yourUsername' });
+      setComments([newComment.comment, ...comments]);
+      setCommentBody('');
+    } catch (err) {
+      console.error("Couldn't post comment:", err);
+    }
   };
 
   return (
@@ -43,14 +46,24 @@ const ArticlePage = () => {
         <Text>Error: {error.message}</Text>
       ) : (
         <>
+          {/* Article */}
           <Box p={5} shadow="md" borderWidth={1}>
-            <Text fontSize="2xl" fontWeight="bold">{article.title}</Text>
+            <Text fontSize="xl" fontWeight="bold">{article.title}</Text>
             <Text mt={2}>Author: {article.author}</Text>
             <Text mt={2}>Published on: {new Date(article.created_at).toLocaleDateString()}</Text>
             <Text mt={4}>{article.body}</Text>
-            <Button mt={4} colorScheme="blue" onClick={handleLike}>Like</Button>
-            <Button mt={4} colorScheme="green" onClick={handleComment}>Comment</Button>
           </Box>
+          {/* Comment Form */}
+          <Box p={5} shadow="md" borderWidth={1}>
+            <Input
+              placeholder="Add a comment..."
+              value={commentBody}
+              onChange={(e) => setCommentBody(e.target.value)}
+            />
+            <Button mt={2} onClick={handleCommentSubmit}>Submit Comment</Button>
+          </Box>
+
+          {/* Comment List */}
           <Box p={5} shadow="md" borderWidth={1}>
             <Text fontSize="xl" fontWeight="bold">Comments</Text>
             <Divider mt={4} mb={4}/>

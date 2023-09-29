@@ -47,3 +47,14 @@ export const fetchCommentsByArticleId = async (id) => {
     throw error;
   }
 }
+
+  // Post a comment to an article
+  // on route POST /api/articles/:article_id/comments
+export const postCommentByArticleId = async (id, comment) => {
+  try {
+    const response = await axios.post(`/articles/${id}/comments`, comment);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
